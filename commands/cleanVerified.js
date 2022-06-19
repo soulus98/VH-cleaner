@@ -8,7 +8,7 @@ module.exports = {
 	type:"Admin",
 	async execute(message) {
 		message.reply("Loading members");
-		message.guild.members.fetch().then((members) =>{
+		message.guild.members.fetch().then(async (members) =>{
 			message.reply("Members loaded. Size = ", members.size);
 			const vh = await message.guild.roles.fetch(ops.VH);
 			const rr = await message.guild.roles.fetch(ops.RR);
