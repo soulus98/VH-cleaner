@@ -3,14 +3,13 @@ const { token } = require("./server/keys.json"),
 			path = require("path"),
 			Discord = require("discord.js"),
 			{ handleCommand } = require("./handlers/commands.js"),
-			{ dateToTime, errorMessage, dev } = require("./func/misc.js"),
-			{ cleanup, loadCleanupList } = require("./func/filter.js"),
-			ver = require("./package.json").version;
+			{ dateToTime, errorMessage, dev } = require("./func/misc.js");
 
 const client = new Discord.Client({
 			intents: [
 				Discord.Intents.FLAGS.GUILDS,
 				Discord.Intents.FLAGS.GUILD_MESSAGES,
+				Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
 			],
 			partials: [
 				"CHANNEL",
@@ -18,15 +17,14 @@ const client = new Discord.Client({
 			presence: {
 				status: "online",
 				activities: [{
-					name: require("./server/config.json").activity || ver,
+					name: "Deleting Roles",
 					type: "PLAYING",
 				}],
 			},
 		}),
 			launchDate = new Date();
 let loaded = false,
-		server = {},
-		cleanupList = new Discord.Collection();
+		server = {};
 ops = {};
 module.exports = { loadConfigs };
 
@@ -36,9 +34,6 @@ async function load(){
 	console.log("Server starting...");
 		await loadConfigs();
 		await loadCommands();
-		await loadCleanupList().then((list) => {
-			cleanupList = list;
-		});
 		client.login(token);
 }
 // Loads (or re-loads) the bot settings
@@ -91,7 +86,6 @@ load();
 client.once("ready", async () => {
 	server = await client.guilds.fetch(ops.serverID);
 	const soul = await client.users.fetch(dev, false, true);
-	client.user.setActivity(`${ver}`);
 	if (server == undefined){
 		console.log("\nOops the screenshot server is broken.");
 		return;
@@ -100,7 +94,7 @@ client.once("ready", async () => {
 	const activeServerList = [];
 	activeServers.each(serv => activeServerList.push(`"${serv.name}" aka #${serv.id}`));
 	soul.send(`**Dev message:** Active in:\n${activeServerList.join("\n")}`).catch(console.error);
-	soul.send(`**Dev message:** Loaded cleaup bot in guild: "${server.name}"#${server.id}`).catch(console.error);
+	soul.send(`**Dev message:** Loaded Verified Cleaner bot in guild: "${server.name}"#${server.id}`).catch(console.error);
 	console.log(`\nActive in:\n${activeServerList.join("\n")}`);
 	console.log(`\nServer started at: ${launchDate.toLocaleString()}. Loaded in guild: "${server.name}"#${server.id}`);
 	console.log("\n======================================================================================\n");
@@ -113,7 +107,6 @@ client.on("shardError", (error) => {
 client.on("shardResume", () => {
 	if (loaded) {
 		console.error("Resumed! Refreshing Activity...");
-		client.user.setActivity(`${ver}`);
 	}
 });
 
@@ -124,7 +117,6 @@ client.on("shardDisconnect", () => {
 client.on("shardReady", () => {
 	if (loaded) {
 		console.error("Reconnected! Refreshing Activity...");
-		client.user.setActivity(`${ver}`);
 	}
 });
 
@@ -132,41 +124,11 @@ client.on("shardReconnecting", () => {
 	console.error("Reconnecting...");
 });
 
-async function checkCleanupList(message) {
-	if (message.author.id != 428187007965986826) return; // pokenav message filtering
-	const filtered = [];
-	for (const g of cleanupList) {
-		if (g[1].includes(message.channel.id)) {
-			cleanup(message, g[0]);
-			filtered.push(true);
-		} else {
-			filtered.push(false);
-		}
-		if (filtered.length == cleanupList.size) {
-			return;
-		}
-	}
-}
-
 client.on("messageCreate", async message => {
-	await checkCleanupList(message);
 	if (message.author.bot) return; // Bot? Cancel
 	const postedTime = new Date();
 	const dm = (message.channel.type == "DM") ? true : false;
-	if (dm) {
-		if (message.content.startsWith("$")) {
-			message.reply("Commands starting with `$` are for a different bot (Pokénav).").catch(() => {
-				errorMessage(postedTime, dm, `Error: I can not reply to ${message.url}${message.channel}.\nContent of mesage: "${message.content}. Sending a backup message...`);
-				message.author.send(`Commands starting with \`$\` are for a different bot (Pokénav).\nYou can use them in <#${ops.profileChannel}> once you have confirmed you are above level ${ops.targetLevelRole} by sending a screenshot in <#${ops.screenshotChannel}>.`);
-			});
-		} else {
-			message.reply(`This bot does not currently work in dms.\nPlease send your profile screenshot in <#${ops.screenshotChannel}>.`).catch(() => {
-				errorMessage(postedTime, dm, `Error: I can not reply to ${message.url}${message.channel}.\nContent of mesage: "${message.content}. Sending a backup message...`);
-				message.author.send(`This bot does not currently work in dms.\nPlease send your profile screenshot in <#${ops.screenshotChannel}>.`);
-			});
-		}
-		return;
-	} else if (message.guild == server) handleCommand(message, postedTime); // command handler
+	handleCommand(message, postedTime); // command handler
 });
 
 process.on("uncaughtException", (err) => {

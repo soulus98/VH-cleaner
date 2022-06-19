@@ -1,0 +1,35 @@
+{
+  "name": "ocrboi",
+  "version": "2.5.1",
+  "description": "Pokémon go Trainer Profile OCR developed for the Pokémon GO Raids discord server",
+  "main": "bot.js",
+  "scripts": {
+    "start": "nodemon ./bin/www",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "misc/*",
+      "*.json"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soulus98/ocrbot.git"
+  },
+  "author": "Soul Green",
+  "license": "Unlicenced",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/soulus98/ocrbot/issues"
+  },
+  "homepage": "https://github.com/soulus98/ocrbot#readme",
+  "dependencies": {
+    "@mapbox/node-pre-gyp": "^1.0.5",
+    "discord.js": "^13.0.0",
+    "nodemon": "^2.0.12"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0"
+  }
+}
