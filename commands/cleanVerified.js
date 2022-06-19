@@ -35,8 +35,9 @@ This message will last 60 seconds.`).then((msg) => {
 					message.reply("test expired");
 				});
 			});
-		}).catch((err) =>{
-			message.reply("Sorry, I didn't load in time... :(\n",err);
+		}).catch((err) => {
+			message.reply("Sorry, I didn't load in time... :(");
+			console.error(err);
 		});
 	},
 };
