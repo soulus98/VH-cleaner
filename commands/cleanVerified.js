@@ -31,17 +31,19 @@ This message will last 60 seconds.`).then((msg) => {
 								const cheaters = vh.members.filter(memb => !memb.roles.cache.has(ops.RR));
 								const size = cheaters.size;
 								for (let i = 0; i < size; i++) {
-									const member = cheaters.at(i);
-									if (member.roles.cache.has(ops.RR)) console.log(member, "#", member.id, "had both VH and RR");
-									else {
-										setTimeout(() => {
-											if (i % 10 == 0 && i != 0) processingMessage.edit(`Processing: ${((i / (size - 1)) * 100).toFixed(2)}%`);
-											// rem role
-											member.roles.remove(ops.VH);
-											console.log(`Removed VH from ${member.user.username}#${member.id}`);
+									const member = members.at(i);
+									setTimeout(() => {
+										if (member.roles.cache.has(ops.RR)) {
+											console.log(member.user.username, "#", member.id, "had both VH and RR");
 											if (i == size - 1) return processingMessage.edit(`Completed.\nChecked ${members.size} members and removed VH ${i} times`);
-										}, 4000 * i);
-									}
+										} else if (member.roles.cache.has(ops.VH)) {
+											if (i % 10 == 0 && i != 0) processingMessage.edit(`Processing: ${((i / (size - 1)) * 100).toFixed(2)}%`);
+											member.roles.remove(ops.VH).then(() => {
+												console.log(`Removed VH from ${member.user.username}#${member.id}`);
+											});
+											if (i == size - 1) return processingMessage.edit(`Completed.\nChecked ${members.size} members and removed VH ${i} times`);
+										}
+									}, 4000 * i);
 								}
 							});
 						} else {
