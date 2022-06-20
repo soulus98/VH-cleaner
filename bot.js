@@ -9,6 +9,7 @@ const client = new Discord.Client({
 			intents: [
 				Discord.Intents.FLAGS.GUILDS,
 				Discord.Intents.FLAGS.GUILD_MESSAGES,
+				Discord.Intents.FLAGS.GUILD_MEMBERS,
 				Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
 			],
 			partials: [
@@ -128,7 +129,7 @@ client.on("messageCreate", async message => {
 	if (message.author.bot) return; // Bot? Cancel
 	const postedTime = new Date();
 	const dm = (message.channel.type == "DM") ? true : false;
-	handleCommand(message, postedTime); // command handler
+	if (!dm && message.guild == server) handleCommand(message, postedTime); // command handlerhandleCommand(message, postedTime); // command handler
 });
 
 process.on("uncaughtException", (err) => {
