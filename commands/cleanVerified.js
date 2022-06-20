@@ -1,4 +1,5 @@
 /* eslint-disable max-nested-callbacks*/
+const rate = 4000;
 
 module.exports = {
 	name: "cleanup-verified",
@@ -43,7 +44,7 @@ This message will last 60 seconds.`).then((msg) => {
 											});
 											if (i == size - 1) return processingMessage.edit(`Completed.\nChecked ${members.size} members and removed VH ${i} times`);
 										}
-									}, 4000 * i);
+									}, rate * i);
 								}
 							});
 						} else {
