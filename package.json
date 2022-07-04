@@ -26,10 +26,10 @@
   "homepage": "https://github.com/soulus98/ocrbot#readme",
   "dependencies": {
     "@mapbox/node-pre-gyp": "^1.0.5",
-    "discord.js": "^13.0.0",
-    "nodemon": "^2.0.12"
+    "discord.js": "^13.0.0"
   },
   "devDependencies": {
-    "eslint": "^7.32.0"
+    "eslint": "^7.32.0",
+    "nodemon": "^2.0.12"
   }
 }
