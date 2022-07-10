@@ -36,11 +36,14 @@ This message will last 60 seconds.`).then((msg) => {
 								processingMessage.react("❌");
 								processingMessage.awaitReactions({ filter, max: 1, time: 12 * 60 * 60 * 1000, errors: ["time"] }).then((col) => {
 									if (col.first().emoji.name === "❌") {
+										console.log("CV Cancelled");
 										breakProcess = true;
+										processingMessage.reactions.removeAll();
 									}
 								}).catch(() => {
+									console.log("Cancel emoji timed out");
 									cancelTimeout = true;
-									processingMessage.removeAll();
+									processingMessage.reactions.removeAll();
 								});
 								revertCheater(0);
 
@@ -55,10 +58,12 @@ This message will last 60 seconds.`).then((msg) => {
 											console.log(`Removed VH from ${member.user.username}#${member.id}`);
 										});
 									}
-									if (i == size - 1) return processingMessage.edit(`Completed.\nChecked ${members.size} members and removed VH ${i} times.`);
+									if (i == size - 1) {
+										processingMessage.reactions.removeAll();
+										return processingMessage.edit(`Completed.\nChecked ${members.size} members and removed VH ${i + 1} times.`);
+									}
 									revertCheater(i + 1);
 								}
-
 
 							});
 						} else {
