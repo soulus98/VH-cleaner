@@ -25,27 +25,41 @@ This message will last 60 seconds.`).then((msg) => {
 						return ["✅", "❌"].includes(reaction.emoji.name) && usr.id === message.author.id;
 					};
 					msg.awaitReactions({ filter, max: 1, time: 60000, errors: ["time"] }).then((collected) => {
+						let breakProcess = false;
+						let cancelTimeout = false;
 						if (collected.first().emoji.name === "✅") {
 							loadingMessage.delete();
 							msg.delete();
-							message.reply("Processing: 0%").then(processingMessage => {
+							message.reply("Processing: 0%. ❌ to cancel").then(processingMessage => {
 								const cheaters = vh.members.filter(memb => !memb.roles.cache.has(ops.RR));
 								const size = cheaters.size;
-								for (let i = 0; i < size; i++) {
-									const member = members.at(i);
-									setTimeout(() => {
-										if (member.roles.cache.has(ops.RR)) {
-											console.log(member.user.username, "#", member.id, "had both VH and RR");
-											if (i == size - 1) return processingMessage.edit(`Completed.\nChecked ${members.size} members and removed VH ${i} times`);
-										} else if (member.roles.cache.has(ops.VH)) {
-											if (i % 10 == 0 && i != 0) processingMessage.edit(`Processing: ${((i / (size - 1)) * 100).toFixed(2)}%`);
-											member.roles.remove(ops.VH).then(() => {
-												console.log(`Removed VH from ${member.user.username}#${member.id}`);
-											});
-											if (i == size - 1) return processingMessage.edit(`Completed.\nChecked ${members.size} members and removed VH ${i} times`);
-										}
-									}, rate * i);
+								processingMessage.react("❌");
+								processingMessage.awaitReactions({ filter, max: 1, time: 12 * 60 * 60 * 1000, errors: ["time"] }).then((col) => {
+									if (col.first().emoji.name === "❌") {
+										breakProcess = true;
+									}
+								}).catch(() => {
+									cancelTimeout = true;
+									processingMessage.removeAll();
+								});
+								revertCheater(0);
+
+								async function revertCheater(i){
+									if (breakProcess) return processingMessage.edit("Cancelled.");
+									const member = cheaters.at(i);
+									if (member.roles.cache.has(ops.RR)) {
+										console.log(member.user.username, "#", member.id, "had both VH and RR");
+									} else if (member.roles.cache.has(ops.VH)) {
+										if (i % 10 == 0 && i != 0) processingMessage.edit(`Processing: ${((i / (size - 1)) * 100).toFixed(2)}%.${(!cancelTimeout) ? " ❌ to cancel" : ""}`);
+										await member.roles.remove(ops.VH).then(() => {
+											console.log(`Removed VH from ${member.user.username}#${member.id}`);
+										});
+									}
+									if (i == size - 1) return processingMessage.edit(`Completed.\nChecked ${members.size} members and removed VH ${i} times.`);
+									revertCheater(i + 1);
 								}
+
+
 							});
 						} else {
 							loadingMessage.delete();
