@@ -56,6 +56,8 @@ This message will last 60 seconds.`).then((msg) => {
 										if (i % 10 == 0 && i != 0) processingMessage.edit(`Processing: ${((i / (size - 1)) * 100).toFixed(2)}%.${(!cancelTimeout) ? " ❌ to cancel" : ""}`);
 										await member.roles.remove(ops.VH).then(() => {
 											console.log(`Removed VH from ${member.user.username}#${member.id}`);
+										}).catch(() => {
+											console.log(`${member.user.username}#${member.id} has left the server.`);
 										});
 									}
 									if (i == size - 1) {
